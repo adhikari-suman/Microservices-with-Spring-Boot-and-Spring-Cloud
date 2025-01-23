@@ -8,6 +8,8 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>api</module>
+        <module>util</module>
         <module>microservices/product-service</module>
         <module>microservices/review-service</module>
         <module>microservices/recommendation-service</module>
