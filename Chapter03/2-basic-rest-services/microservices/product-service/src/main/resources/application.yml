@@ -3,11 +3,11 @@ spring:
     name: product-service
 
 server:
-  port: 7001
+  port: 8001
   error:
     include-message: always
 
 logging:
   level:
     root: info
-    np.com.suman_adhikari.microservices: debug
+    np.com.suman_adhikari: debug
