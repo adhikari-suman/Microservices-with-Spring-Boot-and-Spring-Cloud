@@ -1,0 +1,9 @@
+spring.application.name: recommendation-service
+
+server.port: 8002
+server.error.include-message: always
+
+logging:
+  level:
+    root: INFO
+    np.com.suman_adhikari: DEBUG
