@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: product-service
+
+server:
+  port: 8001
+  error:
+    include-message: always
+
+logging:
+  level:
+    root: info
+    np.com.suman_adhikari: debug
+
+---
+
+spring.config.activate.on-profile: docker
+server.port: 8080
