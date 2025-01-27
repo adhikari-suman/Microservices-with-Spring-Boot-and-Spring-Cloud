@@ -1,4 +1,4 @@
-package np.com.suman_adhikari.microservices.util.http;
+package np.com.suman_adhikari.util.http;
 
 import java.time.ZonedDateTime;
 

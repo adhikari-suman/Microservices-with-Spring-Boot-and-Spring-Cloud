@@ -1,4 +1,4 @@
-package np.com.suman_adhikari.microservices.util.http;
+package np.com.suman_adhikari.util.http;
 
 import np.com.suman_adhikari.api.exceptions.InvalidInputException;
 import np.com.suman_adhikari.api.exceptions.NotFoundException;
