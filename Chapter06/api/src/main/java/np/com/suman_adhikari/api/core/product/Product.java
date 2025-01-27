@@ -1,10 +1,10 @@
 package np.com.suman_adhikari.api.core.product;
 
 public class Product {
-    public final int productId;
-    public final String name;
-    public final int weight;
-    public final String serviceAddress;
+    private int productId;
+    private String name;
+    private int weight;
+    private String serviceAddress;
 
     public Product() {
         productId = 0;
@@ -34,5 +34,21 @@ public class Product {
 
     public String getServiceAddress() {
         return serviceAddress;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    public void setServiceAddress(String serviceAddress) {
+        this.serviceAddress = serviceAddress;
     }
 }
