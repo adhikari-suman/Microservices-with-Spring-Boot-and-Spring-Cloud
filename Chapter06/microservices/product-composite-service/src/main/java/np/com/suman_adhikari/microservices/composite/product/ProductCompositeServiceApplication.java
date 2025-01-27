@@ -15,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 @ComponentScan("np.com.suman_adhikari")
 @SpringBootApplication
 public class ProductCompositeServiceApplication {
+
     @Value("${api.common.version}")         String apiVersion;
     @Value("${api.common.title}")           String apiTitle;
     @Value("${api.common.description}")     String apiDescription;
@@ -27,27 +28,37 @@ public class ProductCompositeServiceApplication {
     @Value("${api.common.contact.url}")     String apiContactUrl;
     @Value("${api.common.contact.email}")   String apiContactEmail;
 
+    /**
+     * Will exposed on $HOST:$PORT/swagger-ui.html
+     *
+     * @return the common OpenAPI documentation
+     */
+    @Bean
+    public OpenAPI getOpenApiDocumentation() {
+        return new OpenAPI()
+                .info(new Info().title(apiTitle)
+                                .description(apiDescription)
+                                .version(apiVersion)
+                                .contact(new Contact()
+                                                 .name(apiContactName)
+                                                 .url(apiContactUrl)
+                                                 .email(apiContactEmail))
+                                .termsOfService(apiTermsOfService)
+                                .license(new License()
+                                                 .name(apiLicense)
+                                                 .url(apiLicenseUrl)))
+                .externalDocs(new ExternalDocumentation()
+                                      .description(apiExternalDocDesc)
+                                      .url(apiExternalDocUrl));
+    }
+
+    @Bean
+    RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
     public static void main(String[] args) {
         SpringApplication.run(ProductCompositeServiceApplication.class, args);
-    }
-
-    @Bean
-    public OpenAPI getOpenAPIDocumentation() {
-        return new OpenAPI().info(new Info().title(apiTitle)
-                                            .description(apiDescription)
-                                            .version(apiVersion)
-                                            .contact(new Contact().name(apiContactName)
-                                                                  .url(apiContactUrl)
-                                                                  .email(apiContactEmail))
-                                            .termsOfService(apiTermsOfService)
-                                            .license(new License().name(apiLicense).url(apiLicenseUrl)))
-                            .externalDocs(
-                                    new ExternalDocumentation().description(apiExternalDocDesc).url(apiExternalDocUrl));
-    }
-
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 
 }
