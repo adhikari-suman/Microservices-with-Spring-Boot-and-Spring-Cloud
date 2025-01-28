@@ -14,4 +14,4 @@ COPY --from=builder extracted/snapshot-dependencies/ ./
 COPY --from=builder extracted/application/ ./
 
 EXPOSE 8080
-ENTRYPOINT ["java","-cp",".:./*" ,"org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
