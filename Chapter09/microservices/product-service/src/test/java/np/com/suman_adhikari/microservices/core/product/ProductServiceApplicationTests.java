@@ -21,7 +21,7 @@ import  np.com.suman_adhikari.microservices.core.product.persistence.ProductRepo
 
 import java.util.function.Consumer;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
 class ProductServiceApplicationTests extends MongoDbTestBase {
 
     @Autowired

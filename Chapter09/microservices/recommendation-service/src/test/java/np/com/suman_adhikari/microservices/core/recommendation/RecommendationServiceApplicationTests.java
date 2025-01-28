@@ -21,7 +21,7 @@ import np.com.suman_adhikari.api.event.Event;
 import np.com.suman_adhikari.api.exceptions.InvalidInputException;
 import np.com.suman_adhikari.microservices.core.recommendation.persistence.RecommendationRepository;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
 class RecommendationServiceApplicationTests extends MongoDbTestBase {
 
     @Autowired
