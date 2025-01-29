@@ -23,7 +23,8 @@ import reactor.core.scheduler.Schedulers;
 public class ProductCompositeServiceApplication {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProductCompositeServiceApplication.class);
-
+    private final Integer threadPoolSize;
+    private final Integer taskQueueSize;
     @Value("${api.common.version}")         String apiVersion;
     @Value("${api.common.title}")           String apiTitle;
     @Value("${api.common.description}")     String apiDescription;
@@ -35,6 +36,18 @@ public class ProductCompositeServiceApplication {
     @Value("${api.common.contact.name}")    String apiContactName;
     @Value("${api.common.contact.url}")     String apiContactUrl;
     @Value("${api.common.contact.email}")   String apiContactEmail;
+    @Autowired
+    public ProductCompositeServiceApplication(
+            @Value("${app.threadPoolSize:10}") Integer threadPoolSize,
+            @Value("${app.taskQueueSize:100}") Integer taskQueueSize
+                                             ) {
+        this.threadPoolSize = threadPoolSize;
+        this.taskQueueSize  = taskQueueSize;
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(ProductCompositeServiceApplication.class, args);
+    }
 
     /**
      * Will exposed on $HOST:$PORT/swagger-ui.html
@@ -60,33 +73,16 @@ public class ProductCompositeServiceApplication {
                                       .url(apiExternalDocUrl));
     }
 
-    private final Integer threadPoolSize;
-    private final Integer taskQueueSize;
-
-    @Autowired
-    public ProductCompositeServiceApplication(
-            @Value("${app.threadPoolSize:10}") Integer threadPoolSize,
-            @Value("${app.taskQueueSize:100}") Integer taskQueueSize
-                                             ) {
-        this.threadPoolSize = threadPoolSize;
-        this.taskQueueSize = taskQueueSize;
-    }
-
     @Bean
     public Scheduler publishEventScheduler() {
         LOG.info("Creates a messagingScheduler with connectionPoolSize = {}", threadPoolSize);
         return Schedulers.newBoundedElastic(threadPoolSize, taskQueueSize, "publish-pool");
     }
 
-
     @Bean
     @LoadBalanced
     public WebClient.Builder loadBalancedWebClientBuilder() {
         return WebClient.builder();
-    }
-
-    public static void main(String[] args) {
-        SpringApplication.run(ProductCompositeServiceApplication.class, args);
     }
 
 }

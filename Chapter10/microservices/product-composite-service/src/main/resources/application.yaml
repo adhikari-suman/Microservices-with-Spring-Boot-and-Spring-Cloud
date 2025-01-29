@@ -3,6 +3,9 @@ springdoc:
   api-docs.path: /openapi/v3/api-docs
   packagesToScan: np.com.suman_adhikari.microservices.composite.product
   pathsToMatch: /**
+  cache.disabled: true
+
+server.forward-headers-strategy: framework
 
 api:
 
@@ -65,9 +68,7 @@ api:
 server.port: 8000
 server.error.include-message: always
 
-spring:
-  application:
-    name: product-composite
+spring.application.name: product-composite
 
 app.eureka-server: localhost
 
@@ -80,7 +81,6 @@ eureka:
   instance:
     leaseRenewalIntervalInSeconds: 5
     leaseExpirationDurationInSeconds: 5
-    hostname: product-composite
 
 spring.cloud.stream:
   defaultBinder: rabbit
