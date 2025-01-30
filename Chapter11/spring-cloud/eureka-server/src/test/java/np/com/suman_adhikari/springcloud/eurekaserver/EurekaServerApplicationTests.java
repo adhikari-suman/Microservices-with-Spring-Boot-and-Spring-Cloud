@@ -1,6 +1,7 @@
 package np.com.suman_adhikari.springcloud.eurekaserver;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,24 +21,33 @@ class EurekaServerApplicationTests {
 	void contextLoads() {
 	}
 
+	@Value("${app.eureka-username}")
+	private String username;
+
+	@Value("${app.eureka-password}")
+	private String password;
+
 	@Autowired
+	void setTestRestTemplate(TestRestTemplate testRestTemplate) {
+		this.testRestTemplate = testRestTemplate.withBasicAuth(username, password);
+	}
+
 	private TestRestTemplate testRestTemplate;
 
 	@Test
 	void catalogLoads() {
 
-		String expectedResponseBody = "{\"applications\":{\"versions__delta\":\"1\",\"apps__hashcode\":\"\"," +
-									  "\"application\":[]}}";
+		String expectedReponseBody = "{\"applications\":{\"versions__delta\":\"1\",\"apps__hashcode\":\"\",\"application\":[]}}";
 		ResponseEntity<String> entity = testRestTemplate.getForEntity("/eureka/apps", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
-		assertEquals(expectedResponseBody, entity.getBody());
+		assertEquals(expectedReponseBody, entity.getBody());
 	}
 
 	@Test
 	void healthy() {
-		String expectedResponseBody = "{\"status\":\"UP\"}";
+		String expectedReponseBody = "{\"status\":\"UP\"}";
 		ResponseEntity<String> entity = testRestTemplate.getForEntity("/actuator/health", String.class);
 		assertEquals(HttpStatus.OK, entity.getStatusCode());
-		assertEquals(expectedResponseBody, entity.getBody());
+		assertEquals(expectedReponseBody, entity.getBody());
 	}
 }
