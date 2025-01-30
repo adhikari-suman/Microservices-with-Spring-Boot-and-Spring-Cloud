@@ -14,17 +14,22 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 import np.com.suman_adhikari.api.core.product.Product;
 import np.com.suman_adhikari.api.core.recommendation.Recommendation;
 import np.com.suman_adhikari.api.core.review.Review;
 import np.com.suman_adhikari.api.exceptions.InvalidInputException;
 import np.com.suman_adhikari.api.exceptions.NotFoundException;
 import np.com.suman_adhikari.microservices.composite.product.services.ProductCompositeIntegration;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
+@SpringBootTest(
+		webEnvironment = RANDOM_PORT,
+		classes = {TestSecurityConfig.class},
+		properties = {
+				"spring.security.oauth2.resourceserver.jwt.issuer-uri=",
+				"spring.main.allow-bean-definition-overriding=true",
+				"eureka.client.enabled=false"})
 class ProductCompositeServiceApplicationTests {
 
 	private static final int PRODUCT_ID_OK = 1;
