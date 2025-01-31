@@ -21,7 +21,9 @@ import  np.com.suman_adhikari.microservices.core.product.persistence.ProductRepo
 
 import java.util.function.Consumer;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
+        "eureka.client.enabled=false",
+        "spring.cloud.config.enabled=false"})
 class ProductServiceApplicationTests extends MongoDbTestBase {
 
     @Autowired
@@ -130,8 +132,8 @@ class ProductServiceApplicationTests extends MongoDbTestBase {
     }
 
     private void sendCreateProductEvent(int productId) {
-        Product                 product = new Product(productId, "Name " + productId, productId, "SA");
-        Event<Integer, Product> event   = new Event(CREATE, productId, product);
+        Product product = new Product(productId, "Name " + productId, productId, "SA");
+        Event<Integer, Product> event = new Event(CREATE, productId, product);
         messageProcessor.accept(event);
     }
 

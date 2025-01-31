@@ -19,12 +19,13 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.transaction.annotation.Transactional;
 
-@DataJpaTest
+@DataJpaTest(properties = {"spring.jpa.hibernate.ddl-auto=update", "spring.cloud.config.enabled=false"})
 @Transactional(propagation = NOT_SUPPORTED)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class PersistenceTests extends MySqlTestBase {
 
-    @Autowired private ReviewRepository repository;
+    @Autowired
+    private ReviewRepository repository;
 
     private ReviewEntity savedEntity;
 
@@ -57,7 +58,7 @@ class PersistenceTests extends MySqlTestBase {
         repository.save(savedEntity);
 
         ReviewEntity foundEntity = repository.findById(savedEntity.getId()).get();
-        assertEquals(1, (long) foundEntity.getVersion());
+        assertEquals(1, (long)foundEntity.getVersion());
         assertEquals("a2", foundEntity.getAuthor());
     }
 
@@ -104,17 +105,17 @@ class PersistenceTests extends MySqlTestBase {
 
         // Get the updated entity from the database and verify its new sate
         ReviewEntity updatedEntity = repository.findById(savedEntity.getId()).get();
-        assertEquals(1, (int) updatedEntity.getVersion());
+        assertEquals(1, (int)updatedEntity.getVersion());
         assertEquals("a1", updatedEntity.getAuthor());
     }
 
     private void assertEqualsReview(ReviewEntity expectedEntity, ReviewEntity actualEntity) {
-        assertEquals(expectedEntity.getId(), actualEntity.getId());
-        assertEquals(expectedEntity.getVersion(), actualEntity.getVersion());
+        assertEquals(expectedEntity.getId(),        actualEntity.getId());
+        assertEquals(expectedEntity.getVersion(),   actualEntity.getVersion());
         assertEquals(expectedEntity.getProductId(), actualEntity.getProductId());
-        assertEquals(expectedEntity.getReviewId(), actualEntity.getReviewId());
-        assertEquals(expectedEntity.getAuthor(), actualEntity.getAuthor());
-        assertEquals(expectedEntity.getSubject(), actualEntity.getSubject());
-        assertEquals(expectedEntity.getContent(), actualEntity.getContent());
+        assertEquals(expectedEntity.getReviewId(),  actualEntity.getReviewId());
+        assertEquals(expectedEntity.getAuthor(),    actualEntity.getAuthor());
+        assertEquals(expectedEntity.getSubject(),   actualEntity.getSubject());
+        assertEquals(expectedEntity.getContent(),   actualEntity.getContent());
     }
 }

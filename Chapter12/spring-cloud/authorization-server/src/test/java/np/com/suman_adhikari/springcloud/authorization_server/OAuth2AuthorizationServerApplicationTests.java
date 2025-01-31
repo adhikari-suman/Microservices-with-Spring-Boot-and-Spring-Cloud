@@ -50,4 +50,5 @@ class OAuth2AuthorizationServerApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("UP")));
     }
+
 }

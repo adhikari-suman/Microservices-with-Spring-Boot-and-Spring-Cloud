@@ -21,7 +21,9 @@ import np.com.suman_adhikari.api.event.Event;
 import np.com.suman_adhikari.api.exceptions.InvalidInputException;
 import np.com.suman_adhikari.microservices.core.recommendation.persistence.RecommendationRepository;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {"eureka.client.enabled=false"})
+@SpringBootTest(webEnvironment = RANDOM_PORT, properties = {
+        "eureka.client.enabled=false",
+        "spring.cloud.config.enabled=false"})
 class RecommendationServiceApplicationTests extends MongoDbTestBase {
 
     @Autowired
@@ -48,7 +50,7 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
         sendCreateRecommendationEvent(productId, 2);
         sendCreateRecommendationEvent(productId, 3);
 
-        assertEquals(3, (long) repository.findByProductId(productId).count().block());
+        assertEquals(3, (long)repository.findByProductId(productId).count().block());
 
         getAndVerifyRecommendationsByProductId(productId, OK)
                 .jsonPath("$.length()").isEqualTo(3)
@@ -59,34 +61,33 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
     @Test
     void duplicateError() {
 
-        int productId        = 1;
+        int productId = 1;
         int recommendationId = 1;
 
         sendCreateRecommendationEvent(productId, recommendationId);
 
-        assertEquals(1, (long) repository.count().block());
+        assertEquals(1, (long)repository.count().block());
 
         InvalidInputException thrown = assertThrows(
                 InvalidInputException.class,
                 () -> sendCreateRecommendationEvent(productId, recommendationId),
-                "Expected a InvalidInputException here!"
-                                                   );
+                "Expected a InvalidInputException here!");
         assertEquals("Duplicate key, Product Id: 1, Recommendation Id:1", thrown.getMessage());
 
-        assertEquals(1, (long) repository.count().block());
+        assertEquals(1, (long)repository.count().block());
     }
 
     @Test
     void deleteRecommendations() {
 
-        int productId        = 1;
+        int productId = 1;
         int recommendationId = 1;
 
         sendCreateRecommendationEvent(productId, recommendationId);
-        assertEquals(1, (long) repository.findByProductId(productId).count().block());
+        assertEquals(1, (long)repository.findByProductId(productId).count().block());
 
         sendDeleteRecommendationEvent(productId);
-        assertEquals(0, (long) repository.findByProductId(productId).count().block());
+        assertEquals(0, (long)repository.findByProductId(productId).count().block());
 
         sendDeleteRecommendationEvent(productId);
     }
@@ -124,17 +125,11 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
                 .jsonPath("$.message").isEqualTo("Invalid productId: " + productIdInvalid);
     }
 
-    private WebTestClient.BodyContentSpec getAndVerifyRecommendationsByProductId(
-            int productId,
-            HttpStatus expectedStatus
-                                                                                ) {
+    private WebTestClient.BodyContentSpec getAndVerifyRecommendationsByProductId(int productId, HttpStatus expectedStatus) {
         return getAndVerifyRecommendationsByProductId("?productId=" + productId, expectedStatus);
     }
 
-    private WebTestClient.BodyContentSpec getAndVerifyRecommendationsByProductId(
-            String productIdQuery,
-            HttpStatus expectedStatus
-                                                                                ) {
+    private WebTestClient.BodyContentSpec getAndVerifyRecommendationsByProductId(String productIdQuery, HttpStatus expectedStatus) {
         return client.get()
                      .uri("/recommendation" + productIdQuery)
                      .accept(APPLICATION_JSON)
@@ -145,11 +140,8 @@ class RecommendationServiceApplicationTests extends MongoDbTestBase {
     }
 
     private void sendCreateRecommendationEvent(int productId, int recommendationId) {
-        Recommendation                 recommendation = new Recommendation(
-                productId, recommendationId, "Author " + recommendationId, recommendationId,
-                "Content " + recommendationId, "SA"
-        );
-        Event<Integer, Recommendation> event          = new Event(CREATE, productId, recommendation);
+        Recommendation recommendation = new Recommendation(productId, recommendationId, "Author " + recommendationId, recommendationId, "Content " + recommendationId, "SA");
+        Event<Integer, Recommendation> event = new Event(CREATE, productId, recommendation);
         messageProcessor.accept(event);
     }
 
