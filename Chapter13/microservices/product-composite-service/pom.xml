@@ -20,6 +20,7 @@
 		<java.version>17</java.version>
 		<org.mapstruct.version>1.5.3.Final</org.mapstruct.version>
 		<springCloudVersion>2022.0.1</springCloudVersion>
+		<resilience4jVersion>2.0.2</resilience4jVersion>
 	</properties>
 
 	<dependencyManagement>
@@ -30,6 +31,12 @@
 				<version>${springCloudVersion}</version>
 				<type>pom</type>
 				<scope>import</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>io.github.resilience4j</groupId>
+				<artifactId>resilience4j-bom</artifactId>
+				<version>${resilience4jVersion}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -129,6 +136,23 @@
 		<dependency>
 			<groupId>org.springframework.cloud</groupId>
 			<artifactId>spring-cloud-starter-config</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot3</artifactId>
+			<version>${resilience4jVersion}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-reactor</artifactId>
+			<version>${resilience4jVersion}</version>
 		</dependency>
 
 	</dependencies>
