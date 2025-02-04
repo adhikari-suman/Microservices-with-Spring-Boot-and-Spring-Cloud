@@ -7,7 +7,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
+
+@SecurityRequirement(name = "security_auth")
 @Tag(name = "ProductComposite", description = "REST API for composite product information.")
 public interface ProductCompositeService {
 
@@ -51,7 +54,11 @@ public interface ProductCompositeService {
     @GetMapping(
             value = "/product-composite/{productId}",
             produces = "application/json")
-    Mono<ProductAggregate> getProduct(@PathVariable int productId);
+    Mono<ProductAggregate> getProduct(
+            @PathVariable int productId,
+            @RequestParam(value = "delay", required = false, defaultValue = "0") int delay,
+            @RequestParam(value = "faultPercent", required = false, defaultValue = "0") int faultPercent
+                                     );
 
     /**
      * Sample usage: "curl -X DELETE $HOST:$PORT/product-composite/1".
