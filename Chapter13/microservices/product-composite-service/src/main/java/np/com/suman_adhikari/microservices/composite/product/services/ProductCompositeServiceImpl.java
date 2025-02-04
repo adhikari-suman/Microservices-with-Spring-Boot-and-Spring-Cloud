@@ -30,7 +30,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
     private final SecurityContext nullSecCtx = new SecurityContextImpl();
 
-    private final ServiceUtil                 serviceUtil;
+    private final ServiceUtil serviceUtil;
     private final ProductCompositeIntegration integration;
 
     @Autowired
@@ -55,17 +55,14 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
             if (body.getRecommendations() != null) {
                 body.getRecommendations().forEach(r -> {
-                    Recommendation recommendation = new Recommendation(body.getProductId(), r.getRecommendationId(),
-                                                                       r.getAuthor(), r.getRate(), r.getContent(), null
-                    );
+                    Recommendation recommendation = new Recommendation(body.getProductId(), r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent(), null);
                     monoList.add(integration.createRecommendation(recommendation));
                 });
             }
 
             if (body.getReviews() != null) {
                 body.getReviews().forEach(r -> {
-                    Review review = new Review(
-                            body.getProductId(), r.getReviewId(), r.getAuthor(), r.getSubject(), r.getContent(), null);
+                    Review review = new Review(body.getProductId(), r.getReviewId(), r.getAuthor(), r.getSubject(), r.getContent(), null);
                     monoList.add(integration.createReview(review));
                 });
             }
@@ -83,16 +80,16 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     @Override
-    public Mono<ProductAggregate> getProduct(int productId) {
+    public Mono<ProductAggregate> getProduct(int productId, int delay, int faultPercent) {
 
         LOG.info("Will get composite product info for product.id={}", productId);
-        return Mono.zip(values -> createProductAggregate((SecurityContext) values[0], (Product) values[1],
-                                                         (List<Recommendation>) values[2], (List<Review>) values[3],
-                                                         serviceUtil.getServiceAddress()
-                                                        ), getSecurityContextMono(), integration.getProduct(productId),
-                        integration.getRecommendations(productId).collectList(),
-                        integration.getReviews(productId).collectList()
-                       )
+        return Mono.zip(
+                           values -> createProductAggregate(
+                                   (SecurityContext) values[0], (Product) values[1], (List<Recommendation>) values[2], (List<Review>) values[3], serviceUtil.getServiceAddress()),
+                           getSecurityContextMono(),
+                           integration.getProduct(productId, delay, faultPercent),
+                           integration.getRecommendations(productId).collectList(),
+                           integration.getReviews(productId).collectList())
                    .doOnError(ex -> LOG.warn("getCompositeProduct failed: {}", ex.toString()))
                    .log(LOG.getName(), FINE);
     }
@@ -103,12 +100,13 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
             LOG.info("Will delete a product aggregate for product.id: {}", productId);
 
-            return Mono.zip(r -> "", getLogAuthorizationInfoMono(), integration.deleteProduct(productId),
-                            integration.deleteRecommendations(productId), integration.deleteReviews(productId)
-                           )
+            return Mono.zip(r -> "",
+                            getLogAuthorizationInfoMono(),
+                            integration.deleteProduct(productId),
+                            integration.deleteRecommendations(productId),
+                            integration.deleteReviews(productId))
                        .doOnError(ex -> LOG.warn("delete failed: {}", ex.toString()))
-                       .log(LOG.getName(), FINE)
-                       .then();
+                       .log(LOG.getName(), FINE).then();
 
         } catch (RuntimeException re) {
             LOG.warn("deleteCompositeProduct failed: {}", re.toString());
@@ -117,51 +115,34 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     }
 
     private ProductAggregate createProductAggregate(
-            SecurityContext sc,
-            Product product,
-            List<Recommendation> recommendations,
-            List<Review> reviews,
-            String serviceAddress
-                                                   ) {
+            SecurityContext sc, Product product, List<Recommendation> recommendations, List<Review> reviews, String serviceAddress) {
 
         logAuthorizationInfo(sc);
 
         // 1. Setup product info
-        int    productId = product.getProductId();
-        String name      = product.getName();
-        int    weight    = product.getWeight();
+        int productId = product.getProductId();
+        String name = product.getName();
+        int weight = product.getWeight();
 
         // 2. Copy summary recommendation info, if available
-        List<RecommendationSummary> recommendationSummaries = (recommendations == null) ?
-                                                              null :
+        List<RecommendationSummary> recommendationSummaries = (recommendations == null) ? null :
                                                               recommendations.stream()
-                                                                             .map(r -> new RecommendationSummary(
-                                                                                     r.getRecommendationId(),
-                                                                                     r.getAuthor(), r.getRate(),
-                                                                                     r.getContent()
-                                                                             ))
+                                                                             .map(r -> new RecommendationSummary(r.getRecommendationId(), r.getAuthor(), r.getRate(), r.getContent()))
                                                                              .collect(Collectors.toList());
 
         // 3. Copy summary review info, if available
-        List<ReviewSummary> reviewSummaries = (reviews == null) ?
-                                              null :
+        List<ReviewSummary> reviewSummaries = (reviews == null)  ? null :
                                               reviews.stream()
-                                                     .map(r -> new ReviewSummary(r.getReviewId(), r.getAuthor(),
-                                                                                 r.getSubject(), r.getContent()
-                                                     ))
+                                                     .map(r -> new ReviewSummary(r.getReviewId(), r.getAuthor(), r.getSubject(), r.getContent()))
                                                      .collect(Collectors.toList());
 
         // 4. Create info regarding the involved microservices addresses
         String productAddress = product.getServiceAddress();
-        String reviewAddress  = (reviews != null && reviews.size() > 0) ? reviews.get(0).getServiceAddress() : "";
-        String recommendationAddress = (recommendations != null && recommendations.size() > 0) ?
-                                       recommendations.get(0).getServiceAddress() :
-                                       "";
-        ServiceAddresses serviceAddresses = new ServiceAddresses(
-                serviceAddress, productAddress, reviewAddress, recommendationAddress);
+        String reviewAddress = (reviews != null && reviews.size() > 0) ? reviews.get(0).getServiceAddress() : "";
+        String recommendationAddress = (recommendations != null && recommendations.size() > 0) ? recommendations.get(0).getServiceAddress() : "";
+        ServiceAddresses serviceAddresses = new ServiceAddresses(serviceAddress, productAddress, reviewAddress, recommendationAddress);
 
-        return new ProductAggregate(
-                productId, name, weight, recommendationSummaries, reviewSummaries, serviceAddresses);
+        return new ProductAggregate(productId, name, weight, recommendationSummaries, reviewSummaries, serviceAddresses);
     }
 
     private Mono<SecurityContext> getLogAuthorizationInfoMono() {
@@ -174,7 +155,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
     private void logAuthorizationInfo(SecurityContext sc) {
         if (sc != null && sc.getAuthentication() != null && sc.getAuthentication() instanceof JwtAuthenticationToken) {
-            Jwt jwtToken = ((JwtAuthenticationToken) sc.getAuthentication()).getToken();
+            Jwt jwtToken = ((JwtAuthenticationToken)sc.getAuthentication()).getToken();
             logAuthorizationInfo(jwtToken);
         } else {
             LOG.warn("No JWT based Authentication supplied, running tests are we?");
@@ -186,15 +167,13 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
             LOG.warn("No JWT supplied, running tests are we?");
         } else {
             if (LOG.isDebugEnabled()) {
-                URL          issuer   = jwt.getIssuer();
+                URL issuer = jwt.getIssuer();
                 List<String> audience = jwt.getAudience();
-                Object       subject  = jwt.getClaims().get("sub");
-                Object       scopes   = jwt.getClaims().get("scope");
-                Object       expires  = jwt.getClaims().get("exp");
+                Object subject = jwt.getClaims().get("sub");
+                Object scopes = jwt.getClaims().get("scope");
+                Object expires = jwt.getClaims().get("exp");
 
-                LOG.debug("Authorization info: Subject: {}, scopes: {}, expires {}: issuer: {}, audience: {}", subject,
-                          scopes, expires, issuer, audience
-                         );
+                LOG.debug("Authorization info: Subject: {}, scopes: {}, expires {}: issuer: {}, audience: {}", subject, scopes, expires, issuer, audience);
             }
         }
     }
